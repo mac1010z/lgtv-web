@@ -25,7 +25,7 @@ TVS = {
 python3 server.py
 ```
 
-Open `http://<your-mac-ip>:5000` on any device on the same network.
+Open `http://<your-mac-ip>:7896` on any device on the same network.
 
 ## Requirements
 
