@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>LG TV Remote</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <div class="tv-tabs">
+    {% for key, tv in tvs.items() %}
+    <button class="tab-btn {% if loop.first %}active{% endif %}" onclick="setTV('{{ key }}', this)">{{ tv.name }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="remote">
+
+    <!-- Power & Info -->
+    <div class="row">
+      <button class="btn red" onclick="cmd('power')">⏻</button>
+      <button class="btn" onclick="cmd('info')">ℹ</button>
+      <button class="btn" onclick="cmd('home')">⌂</button>
+    </div>
+
+    <!-- Apps -->
+    <div class="section-label">Apps</div>
+    <div class="row wrap">
+      <button class="btn app" onclick="cmd('netflix')">Netflix</button>
+      <button class="btn app" onclick="cmd('youtube')">YouTube</button>
+      <button class="btn app" onclick="cmd('disney')">Disney+</button>
+      <button class="btn app" onclick="cmd('hbo')">HBO</button>
+      <button class="btn app" onclick="cmd('hulu')">Hulu</button>
+      <button class="btn app" onclick="cmd('prime')">Prime</button>
+      <button class="btn app" onclick="cmd('apple')">Apple TV</button>
+      <button class="btn app" onclick="cmd('peacock')">Peacock</button>
+      <button class="btn app" onclick="cmd('spotify')">Spotify</button>
+    </div>
+
+    <!-- Volume -->
+    <div class="section-label">Volume</div>
+    <div class="row">
+      <button class="btn big" onclick="cmd('vol_down')">－</button>
+      <button class="btn" onclick="cmd('mute')">🔇</button>
+      <button class="btn big" onclick="cmd('vol_up')">＋</button>
+    </div>
+
+    <!-- Navigation -->
+    <div class="section-label">Navigation</div>
+    <div class="dpad">
+      <div class="dpad-row">
+        <button class="btn dpad-btn" onclick="cmd('up')">▲</button>
+      </div>
+      <div class="dpad-row">
+        <button class="btn dpad-btn" onclick="cmd('left')">◀</button>
+        <button class="btn dpad-btn ok" onclick="cmd('ok')">OK</button>
+        <button class="btn dpad-btn" onclick="cmd('right')">▶</button>
+      </div>
+      <div class="dpad-row">
+        <button class="btn dpad-btn" onclick="cmd('down')">▼</button>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn" onclick="cmd('back')">↩</button>
+      <button class="btn" onclick="cmd('subs')">CC</button>
+    </div>
+
+    <!-- Playback -->
+    <div class="section-label">Playback</div>
+    <div class="row">
+      <button class="btn" onclick="cmd('rw')">⏮</button>
+      <button class="btn" onclick="cmd('play')">⏯</button>
+      <button class="btn" onclick="cmd('ff')">⏭</button>
+      <button class="btn" onclick="cmd('stop')">⏹</button>
+    </div>
+
+    <!-- Channels -->
+    <div class="section-label">Channels</div>
+    <div class="row">
+      <button class="btn" onclick="cmd('ch_down')">CH－</button>
+      <button class="btn" onclick="cmd('ch_up')">CH＋</button>
+    </div>
+
+    <!-- Inputs -->
+    <div class="section-label">Inputs</div>
+    <div class="row">
+      <button class="btn" onclick="cmd('hdmi', '1')">HDMI 1</button>
+      <button class="btn" onclick="cmd('hdmi', '2')">HDMI 2</button>
+      <button class="btn" onclick="cmd('hdmi', '3')">HDMI 3</button>
+      <button class="btn" onclick="cmd('hdmi', '4')">HDMI 4</button>
+    </div>
+
+    <!-- URL -->
+    <div class="section-label">Browser</div>
+    <div class="row url-row">
+      <input id="url-input" type="url" placeholder="Enter URL..." />
+      <button class="btn" onclick="openUrl()">Go</button>
+    </div>
+
+    <!-- Feedback -->
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <script>
+    let currentTV = '{{ tvs.keys()|list|first }}';
+
+    function setTV(key, el) {
+      currentTV = key;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function cmd(command, val) {
+      let url = `/cmd/${currentTV}/${command}`;
+      if (val !== undefined) url += `?val=${encodeURIComponent(val)}`;
+      fetch(url)
+        .then(r => r.json())
+        .then(d => { if (d.error) toast(d.error, true); })
+        .catch(e => toast(e.toString(), true));
+    }
+
+    function openUrl() {
+      const val = document.getElementById('url-input').value.trim();
+      if (val) cmd('url', val);
+    }
+
+    function toast(msg, err) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (err ? ' err' : '');
+      setTimeout(() => t.className = 'toast', 2000);
+    }
+  </script>
+</body>
+</html>
